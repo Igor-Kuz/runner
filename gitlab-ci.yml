@@ -1,0 +1,30 @@
+stages:
+  - save_config
+
+services:
+  - name: docker:dind
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  ANSIBLE_HOST_KEY_CHECKING: 'false'
+  ANSIBLE_FORCE_COLOR: 'true'
+  PYTHON_INTERPRRTER: /usr/local/bin/python3
+
+before_script:
+  - ansible-galaxy collection install ansible.netcommon
+  - git remote remove origin
+  - git remote add origin "https://${username}:${token}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+  - git config user.email "${GITLAB_USER_EMAIL}"
+  - git config user.name "${GITLAB_USER_NAME}"
+
+save_config:
+  stage: save_config
+  tags:
+    - shAnsDock
+  only:
+    - master
+  image:
+    name: registry.gitlab.com/pipeline-components/ansible-lint:latest
+  script:

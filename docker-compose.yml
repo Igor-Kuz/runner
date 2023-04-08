@@ -1,0 +1,27 @@
+version: '3.8'
+
+volumes:
+  gitlab-runner-config:
+    name: gitlab-runner-config
+  gitlab-runner-ssh:
+    name: gitlab-runner-ssh
+#    driver_opts:
+#      type: local
+#      device: '/srv/sites/playpress.ru/www'
+#      o: bind
+
+
+services:
+  gitlab-runner:
+    restart: always
+    image: gitlab/gitlab-runner:latest
+    environment:
+      TZ: Europe/Moscow
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - gitlab-runner-config:/etc/gitlab-runner
+      - gitlab-runner-ssh:/root/.ssh:ro
+    privileged: true
+    deploy:
+      mode: replicated
+      replicas: 3
